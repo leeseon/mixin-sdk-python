@@ -3,6 +3,16 @@
 import base64
 import json
 import logging
+import sys
+import os
+
+# 先导入修复代理的模块并禁用macOS代理
+try:
+    import fix_proxy
+    fix_proxy.disable_macos_proxies()
+    print("已禁用macOS系统代理检测")
+except ImportError:
+    print("未找到fix_proxy模块，可能会遇到代理相关问题")
 
 from mixinsdk.clients.client_blaze import BlazeClient
 from mixinsdk.clients.client_http import HttpClient_WithAppConfig
@@ -80,10 +90,13 @@ def message_handle(bot: BlazeClient, message):
 TEST_PARAMS = load_parameters()
 cfg = AppConfig.from_payload(load_app_keystore("mixin-app-keystore.json"))
 client = HttpClient_WithAppConfig(cfg)
+
 bot = BlazeClient(
     cfg,
     on_message=message_handle,
     on_error=message_handle_error_callback,
 )
 bot.xin = HttpClient_WithAppConfig(cfg)
+
+print("\n========= 开始运行BlazeClient =========")
 bot.run_forever(2)
