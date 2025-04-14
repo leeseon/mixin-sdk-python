@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def load_app_keystore(filename: str = "mixin-app-keystore.json"):
-    keystore_file = Path(__file__).parent.parent.parent / filename
+    keystore_file = Path(__file__).parent.parent / filename
     if not keystore_file.exists():
         msg = f"✗ keystore file not found: {keystore_file}"
         msg += "\nYou can get mixin app keystore value from https://developers.mixin.one/dashboard"
@@ -21,7 +21,7 @@ def load_app_keystore(filename: str = "mixin-app-keystore.json"):
 
 
 def load_parameters(filename="test-parameters.json"):
-    parameters_file = Path(__file__).parent.parent.parent / filename
+    parameters_file = Path(__file__).parent.parent / filename
     if not parameters_file.exists():
         msg = f"✗ Parameters file not found: {parameters_file}"
         print(msg)
