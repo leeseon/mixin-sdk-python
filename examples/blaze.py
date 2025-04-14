@@ -6,14 +6,6 @@ import logging
 import sys
 import os
 
-# 先导入修复代理的模块并禁用macOS代理
-try:
-    import fix_proxy
-    fix_proxy.disable_macos_proxies()
-    print("已禁用macOS系统代理检测")
-except ImportError:
-    print("未找到fix_proxy模块，可能会遇到代理相关问题")
-
 from mixinsdk.clients.client_blaze import BlazeClient
 from mixinsdk.clients.client_http import HttpClient_WithAppConfig
 from mixinsdk.clients.config import AppConfig
