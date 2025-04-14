@@ -169,7 +169,7 @@ class BlazeClient:
             async for websocket in websockets.connect(
                 self.api_base,
                 subprotocols=["Mixin-Blaze-1"],
-                extra_headers={"Authorization": f"Bearer {auth_token}"},
+                additional_headers={"Authorization": f"Bearer {auth_token}"},
             ):
                 self.logger.info("Websocket connected")
                 self.ws: websockets.client.WebSocketClientProtocol = websocket
