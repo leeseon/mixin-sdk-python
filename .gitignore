@@ -148,3 +148,8 @@ dmypy.json
 .pyre/
 
 *.json
+debug_auth_token.py
+decode_token.rb
+jwt_comparison.py
+private_to_public_key.py
+test_mixin_api.py
