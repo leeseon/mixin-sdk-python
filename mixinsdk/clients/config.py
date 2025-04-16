@@ -10,48 +10,54 @@ class AppConfig:
     (such as Mixin Messenger bot)
     """
 
-    def __init__(self, pin, client_id, session_id, pin_token, private_key):
-        """You can get bot config values from https://developers.mixin.one/dashboard"""
+    def __init__(self, client_id, session_id, pin=None, pin_token=None, session_private_key=None):
+        """
+        You can get bot config values from https://developers.mixin.one/dashboard
+        
+        Args:
+            client_id: The client ID of your Mixin application
+            session_id: The session ID of your Mixin application
+            pin: Optional PIN code for operations requiring PIN (can be None)
+            pin_token: Optional PIN token for encrypting PIN (can be None if PIN operations are not needed)
+            session_private_key: Optional session private key (used when pin_token is not available)
+        """
 
-        self.pin = pin
         self.client_id = client_id
         self.session_id = session_id
-        self.pin_token = base64_pad_equal_sign(pin_token)
-        self.private_key = private_key
-        #
-        self.key_algorithm = ""  # Ed25519 or RS512 (EdDSA:Ed25519, RSA:RS512)
-        if "RSA PRIVATE KEY" in self.private_key:
-            self.key_algorithm = "RS512"
-        else:
-            self.key_algorithm = "Ed25519"
-            key = base64_pad_equal_sign(self.private_key)
-            # ed25519 private key bytes
-            self.private_key = urlsafe_b64decode(key.encode())
+        self.pin = pin
+        self.pin_token = base64_pad_equal_sign(pin_token) if pin_token else None
+        self.session_private_key = session_private_key
+        self.key_algorithm = "Ed25519"
+        self.private_key = bytes.fromhex(self.session_private_key)
+
+
 
     @classmethod
     def from_payload(cls, payload: dict) -> "AppConfig":
         """
+        Create AppConfig from a configuration dictionary
+        
         payload structure:
         {
-            "pin": "required",
             "client_id": "required",
             "session_id": "required",
-            "pin_token": "required",
-            "private_key": "required"
+            "private_key": "required",
+            "pin": "optional",
+            "pin_token": "optional",
+            "session_private_key": "optional - used when pin_token is not available"
         }
         """
 
         if isinstance(payload, str):
             payload = json.loads(payload)
 
-        c = cls(
-            payload.get("pin"),
-            payload["client_id"],
-            payload["session_id"],
-            payload["pin_token"],
-            payload["private_key"],
+        return cls(
+            client_id=payload["client_id"],
+            session_id=payload["session_id"],
+            pin=payload.get("pin"),
+            pin_token=payload.get("pin_token"),
+            session_private_key=payload.get("session_private_key"),
         )
-        return c
 
     @classmethod
     def from_file(cls, file_path: str) -> "AppConfig":
@@ -68,21 +74,36 @@ class NetworkUserConfig:
         self,
         user_id,
         session_id,
-        pin,
-        pin_token,
         private_key,
-        public_key,
+        pin=None,
+        pin_token=None,
+        public_key=None,
+        session_private_key=None,
     ):
         """
-        - private_key/public_key: must be base64 encoded Ed25519 key
+        Initialize NetworkUserConfig
+        
+        Args:
+            user_id: The user ID
+            session_id: The session ID
+            private_key: The private key (base64 encoded Ed25519 key)
+            pin: Optional PIN code (can be None)
+            pin_token: Optional PIN token (can be None if PIN operations are not needed)
+            public_key: Optional public key (base64 encoded Ed25519 key)
+            session_private_key: Optional session private key (used when pin_token is not available)
         """
         self.user_id = user_id
         self.session_id = session_id
         self.pin = pin
-        self.pin_token = base64_pad_equal_sign(pin_token)
+        self.pin_token = base64_pad_equal_sign(pin_token) if pin_token else None
+        self.session_private_key = session_private_key
+        
+        # Process private key
         self.private_key = urlsafe_b64decode(
             base64_pad_equal_sign(private_key).encode()
         )
+        
+        # Process public key if provided
         if public_key:
             self.public_key = urlsafe_b64decode(
                 base64_pad_equal_sign(public_key).encode()
@@ -95,29 +116,32 @@ class NetworkUserConfig:
     @classmethod
     def from_payload(cls, payload: dict) -> "NetworkUserConfig":
         """
+        Create NetworkUserConfig from a configuration dictionary
+        
         payload structure:
         {
             "user_id": "required",
             "session_id": "required",
-            "pin": "",
-            "pin_token": "required",
             "private_key": "required",
-            "public_key": "",
+            "pin": "optional",
+            "pin_token": "optional",
+            "public_key": "optional",
+            "session_private_key": "optional - used when pin_token is not available"
         }
         """
 
         if isinstance(payload, str):
             payload = json.loads(payload)
 
-        c = cls(
-            payload["user_id"],
-            payload["session_id"],
-            payload.get("pin"),
-            payload["pin_token"],
-            payload["private_key"],
-            payload.get("public_key"),
+        return cls(
+            user_id=payload["user_id"],
+            session_id=payload["session_id"],
+            private_key=payload["private_key"],
+            pin=payload.get("pin"),
+            pin_token=payload.get("pin_token"),
+            public_key=payload.get("public_key"),
+            session_private_key=payload.get("session_private_key"),
         )
-        return c
 
     @classmethod
     def from_file(cls, file_path: str) -> "NetworkUserConfig":
