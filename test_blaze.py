@@ -1,5 +1,3 @@
-import os
-import sys
 
 # 先导入修复代理的模块并禁用macOS代理
 print("\n========= 禁用macOS系统代理检测 =========")

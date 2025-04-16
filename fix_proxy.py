@@ -3,7 +3,6 @@
 在导入任何使用urllib或websockets模块之前先调用这个脚本中的函数
 """
 import os
-import sys
 import logging
 
 logger = logging.getLogger(__name__)
