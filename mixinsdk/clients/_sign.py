@@ -1,4 +1,3 @@
-import datetime
 import hashlib
 import os
 import time
@@ -22,6 +21,9 @@ def sign_authentication_token(
     method,
     uri,
     bodystring: str = None,
+    iat: int = None,
+    exp: int = None,
+    jti: str = None,
 ):
     """
     JWT Structure: https://developers.mixin.one/docs/api/guide
@@ -43,13 +45,15 @@ def sign_authentication_token(
 
     bodystring = bodystring if bodystring else ""
     hashresult = hashlib.sha256((method + uri + bodystring).encode("utf-8")).hexdigest()
-    exp = datetime.datetime.utcnow() + datetime.timedelta(seconds=200)
+    iat = int(time.time()) if iat is None else iat
+    exp = iat + 600 if exp is None else exp
+    jti = str(uuid.uuid4()) if jti is None else jti
     payload = {
         "uid": user_id,
         "sid": session_id,
-        "iat": datetime.datetime.utcnow(),
+        "iat": iat,
         "exp": exp,
-        "jti": str(uuid.uuid4()),
+        "jti": jti,
         "sig": hashresult,
         "scp": "FULL",
     }
