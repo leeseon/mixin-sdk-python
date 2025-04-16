@@ -1,10 +1,7 @@
 """blaze client example"""
 
-import base64
 import json
 import logging
-import sys
-import os
 
 from mixinsdk.clients.client_blaze import BlazeClient
 from mixinsdk.clients.client_http import HttpClient_WithAppConfig
