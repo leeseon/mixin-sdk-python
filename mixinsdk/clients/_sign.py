@@ -22,6 +22,9 @@ def sign_authentication_token(
     method,
     uri,
     bodystring: str = None,
+    iat: int = None,
+    exp: int = None,
+    jti: str = None,
 ):
     """
     JWT Structure: https://developers.mixin.one/docs/api/guide
@@ -32,7 +35,13 @@ def sign_authentication_token(
         key = private_key
     elif key_algorithm.lower() in ["eddsa", "ed25519"]:
         alg = "EdDSA"
-        key = ed25519.Ed25519PrivateKey.from_private_bytes(private_key[:32])
+        # For Ed25519, we need to use the seed (first 32 bytes) for signing
+        if len(private_key) == 64:
+            # If we have the full private key, use the first 32 bytes as seed
+            key = ed25519.Ed25519PrivateKey.from_private_bytes(private_key[:32])
+        else:
+            # If we have the seed, use it directly
+            key = ed25519.Ed25519PrivateKey.from_private_bytes(private_key)
     else:
         raise ValueError(f"Unsupported key's algorithm: {key_algorithm}")
 
@@ -43,13 +52,15 @@ def sign_authentication_token(
 
     bodystring = bodystring if bodystring else ""
     hashresult = hashlib.sha256((method + uri + bodystring).encode("utf-8")).hexdigest()
-    exp = datetime.datetime.utcnow() + datetime.timedelta(seconds=200)
+    iat = int(time.time()) if iat is None else iat
+    exp = iat + 600 if exp is None else exp
+    jti = str(uuid.uuid4()) if jti is None else jti
     payload = {
         "uid": user_id,
         "sid": session_id,
-        "iat": datetime.datetime.utcnow(),
+        "iat": iat,
         "exp": exp,
-        "jti": str(uuid.uuid4()),
+        "jti": jti,
         "sig": hashresult,
         "scp": "FULL",
     }
