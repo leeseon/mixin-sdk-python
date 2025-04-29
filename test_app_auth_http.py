@@ -1,6 +1,6 @@
 from examples.http_with_app_auth import *
 
-# test_read_me()
+test_read_me()
 # test_read_users()
 # test_list_assets()
 # test_read_conversation()
@@ -10,4 +10,4 @@ from examples.http_with_app_auth import *
 # test_send_contact()
 # test_send_messages_in_batch()
 # test_send_buttons()
-test_send_encrypted_message()
+# test_send_encrypted_message()
