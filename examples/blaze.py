@@ -1,6 +1,5 @@
 """blaze client example"""
 
-import base64
 import json
 import logging
 
@@ -12,8 +11,10 @@ from mixinsdk.utils import disable_macos_proxies
 
 from ._test_utils import load_app_keystore, load_parameters
 
-# Disable macOS system proxies if needed
-disable_macos_proxies()
+# Disable macOS system proxies if on macOS
+import platform
+if platform.system() == 'Darwin':
+    disable_macos_proxies()
 
 logger = logging.getLogger("blaze")
 logger.setLevel(logging.INFO)
