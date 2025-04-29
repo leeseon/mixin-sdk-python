@@ -8,8 +8,12 @@ from mixinsdk.clients.client_blaze import BlazeClient
 from mixinsdk.clients.client_http import HttpClient_WithAppConfig
 from mixinsdk.clients.config import AppConfig
 from mixinsdk.types.message import pack_message, pack_text_data
+from mixinsdk.utils import disable_macos_proxies
 
 from ._test_utils import load_app_keystore, load_parameters
+
+# Disable macOS system proxies if needed
+disable_macos_proxies()
 
 logger = logging.getLogger("blaze")
 logger.setLevel(logging.INFO)
