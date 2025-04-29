@@ -75,7 +75,7 @@ def message_handle(bot: BlazeClient, message):
         encrypt_func=bot.xin.encrypt_message_data,
         quote_message_id=msg_data.get("message_id"),
     )
-    client.api.message.send_encrypted_messages([msg])
+    bot.xin.api.message.send_encrypted_messages([msg])
 
     bot.echo(msg_data.get("message_id"))
 
@@ -84,11 +84,9 @@ def message_handle(bot: BlazeClient, message):
 
 TEST_PARAMS = load_parameters()
 cfg = AppConfig.from_payload(load_app_keystore("mixin-app-keystore.json"))
-client = HttpClient_WithAppConfig(cfg)
 bot = BlazeClient(
     cfg,
     on_message=message_handle,
     on_error=message_handle_error_callback,
 )
-bot.xin = HttpClient_WithAppConfig(cfg)
 bot.run_forever(2)

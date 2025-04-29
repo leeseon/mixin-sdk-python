@@ -13,6 +13,7 @@ import websockets
 import websockets.client
 
 from mixinsdk.types.user import UserProfile
+from mixinsdk.clients.client_http import HttpClient_WithAppConfig
 
 from ..constants import API_BASE_URLS
 from ..utils import get_conversation_id_of_two_users
@@ -45,6 +46,9 @@ class BlazeClient:
         self.logger = logging.getLogger("blaze-client")
         self.api_base = api_base
         self.auto_start_list_pending_message = auto_start_list_pending_message
+
+        # Initialize HTTP client
+        self.xin = HttpClient_WithAppConfig(config)
 
         self.ws = None
         self._stoping = False
