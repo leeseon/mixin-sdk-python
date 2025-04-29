@@ -9,8 +9,6 @@ import nacl.bindings
 import nacl.signing
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from mixinsdk.utils import base64_pad_equal_sign
-
 from ..utils import base64_pad_equal_sign
 
 
@@ -51,11 +49,11 @@ def decrypt_message_data(data_b64_str: str, app_session_id: str, private: bytes)
     for i in range(35, prefixSize, size):
         uid = str(uuid.UUID(bytes=data_bytes[i : i + 16]))
         if uid == app_session_id:
-            dst = []
-            priv = []
-            pub = []
             pub = data_bytes[3:35]
-
+            # Handle both 32-byte seed and 64-byte private key
+            if len(private) == 32:
+                # If we have a seed, convert it to a full private key
+                _, private = nacl.bindings.crypto_sign_seed_keypair(private)
             priv = nacl.bindings.crypto_sign_ed25519_sk_to_curve25519(private)
             dst = nacl.bindings.crypto_scalarmult(priv, pub)
 
@@ -93,6 +91,10 @@ def encrypt_message_data(
     shared_ciphertext += encryptor.finalize() + encryptor.tag  # tag = +16 bytes
 
     # ed25519 private key -> cureve25519 public key
+    # Handle both 32-byte seed and 64-byte private key
+    if len(app_private_key) == 32:
+        # If we have a seed, convert it to a full private key
+        _, app_private_key = nacl.bindings.crypto_sign_seed_keypair(app_private_key)
     _pk = nacl.bindings.crypto_sign_ed25519_sk_to_pk(app_private_key)
     curve25519_pubkey = nacl.bindings.crypto_sign_ed25519_pk_to_curve25519(_pk)
 
